@@ -1,0 +1,9 @@
+snowpark_config = {
+    'account': 'acme',
+    'user': 'johndoe',
+    'password': 'hunter2',
+    'role': 'ACCOUNTADMIN',
+    'warehouse': 'mywarehouse',
+    'database': 'mydatabase',
+    'schema': 'PUBLIC'
+}
