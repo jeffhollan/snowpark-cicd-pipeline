@@ -3,6 +3,7 @@
   "storedProcedure": "most_popular_article()",
   "assertions": [
     "SELECT * FROM top_articles_by_author WHERE Author like 'Jeff Hollan'",
-    "SELECT * FROM top_articles_by_author GROUP BY AUTHOR HAVING COUNT(*) > 1"
+    "SELECT AUTHOR FROM top_articles_by_author GROUP BY AUTHOR HAVING COUNT(*) > 1",
+    "SELECT AUTHOR FROM top_articles_by_author WHERE AUTHOR is null"
   ]
 }
