@@ -1,3 +1,6 @@
+# This file can be used to store credentials for local dev / testing
+# Rename to `config.py` and replace the values below with your own
+
 snowpark_config = {
     'account': 'acme',
     'user': 'johndoe',

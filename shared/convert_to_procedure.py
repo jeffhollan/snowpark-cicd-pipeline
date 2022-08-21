@@ -1,6 +1,8 @@
-# from nbconvert, convert process_data.ipynb to process_data.py
+# This script converts notebooks to python scripts
 
-from nbconvert.nbconvertapp import NbConvertApp
+from nbconvert.nbconvertapp import NbConvertApp, os
+from glob import glob
+from pathlib import Path
 # from nbconvert.exporters.python import PythonExporter
 # from nbconvert.writers import FilesWriter
 
@@ -20,4 +22,7 @@ def convert_to_procedure(input_file, output_file):
 
 
 if __name__ == '__main__':
-    convert_to_procedure('process_data.ipynb', 'process_data')
+    notebook_files = glob('./**/*.ipynb')
+    print(notebook_files)
+    for notebook_file in notebook_files:
+        convert_to_procedure(notebook_file, Path(notebook_file).stem)
