@@ -9,7 +9,7 @@ def session() -> Session:
     if SnowflakeConnection().connection:
         session = SnowflakeConnection().connection
     # if running locally with a config file
-    elif os.path.exists('config.py'):
+    elif os.path.exists('../config.py') or os.path.exists('config.py'):
         from config import snowpark_config
         session = Session.builder.configs(snowpark_config).create()
     else:
