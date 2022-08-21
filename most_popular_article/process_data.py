@@ -1,8 +1,13 @@
 #!/usr/bin/env python
 # coding: utf-8
 
-# In[ ]:
+# In[1]:
 
+
+import sys
+
+if ".." not in sys.path:
+    sys.path.insert(0, "..")
 
 from snowflake.snowpark import Session, udf
 from snowflake.snowpark.functions import *
@@ -12,19 +17,19 @@ from shared import get_session
 session = get_session.session()
 
 
-# In[ ]:
+# In[2]:
 
 
 articles_df = session.table('articles')
 
 
-# In[ ]:
+# In[3]:
 
 
 articles_df = articles_df.select(col('author'), col('claps'), col('title'), col('reading_time'))
 
 
-# In[ ]:
+# In[5]:
 
 
 # making this a method so I can unit test the logic
@@ -36,7 +41,7 @@ def convert_claps_to_int(input_df):
 df = convert_claps_to_int(articles_df)
 
 
-# In[ ]:
+# In[6]:
 
 
 # making this a method so I can unit test the logic
@@ -49,7 +54,7 @@ def get_each_author_most_popular_article(input_df):
 output = get_each_author_most_popular_article(df)
 
 
-# In[ ]:
+# In[7]:
 
 
 # update table

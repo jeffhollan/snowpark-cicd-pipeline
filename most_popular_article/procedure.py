@@ -1,5 +1,5 @@
 from snowflake.snowpark import Session
-from snowflake_connection import SnowflakeConnection
+from shared.snowflake_connection import SnowflakeConnection
 
 
 def invoke(session: Session) -> str:
