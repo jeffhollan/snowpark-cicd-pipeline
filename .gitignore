@@ -2,3 +2,5 @@ config.py
 .venv
 __pycache__
 .pytest_cache
+app.zip
+.packages

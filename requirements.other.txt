@@ -1,0 +1,2 @@
+# text file to store requirements that need to be manually installed
+holidays>0.14

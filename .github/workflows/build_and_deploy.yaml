@@ -1,0 +1,79 @@
+# This is a basic workflow to help you get started with Actions
+
+name: Build
+
+# Controls when the workflow will run
+on:
+  # Triggers the workflow on push or pull request events but only for the main branch
+  push:
+    branches:
+      - "*"
+    tags:
+      - "v*"
+  pull_request:
+    branches: [main]
+
+  # Allows you to run this workflow manually from the Actions tab
+  workflow_dispatch:
+
+env:
+  SNOWSQL_PWD: ${{ secrets.SNOWFLAKE_PASSWORD }}
+  SNOWSQL_ACCOUNT: ${{ secrets.SNOWFLAKE_ACCOUNT }}
+  SNOWSQL_USER: ${{ secrets.SNOWFLAKE_USERNAME }}
+  SNOWSQL_DATABASE: ${{ secrets.SNOWFLAKE_DATABASE }}
+  SNOWSQL_SCHEMA: ${{ secrets.SNOWFLAKE_SCHEMA }}
+  SNOWSQL_ROLE: ${{ secrets.SNOWFLAKE_ROLE }}
+  SNOWSQL_WAREHOUSE: ${{ secrets.SNOWFLAKE_WAREHOUSE }}
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-python@v4
+        with:
+          python-version: "3.8"
+      - name: Install python packages
+        run: pip install -r requirements.txt
+      - name: Convert notebook files
+        run: |
+          echo 'Converting notebook files to .py...'
+          python -m shared.convert_to_procedure
+      - name: Running unit tests
+        run: python -m pytest
+      - name: Installing manually managed packages for deployment
+        run: |
+          echo 'Installing packages that require manual installation....'
+          pip install -t .packages -r requirements.other.txt
+      - name: Create zip package
+        run: |
+          echo 'Creating zip package...'
+          cd .packages
+          zip -r ../app.zip .
+          cd ..
+          zip -g  -x .\* -r app.zip .
+      - name: Archive python artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: app
+          path: app.zip
+          retention-days: 7
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/download-artifact@v3
+        with:
+          name: app
+      - name: Install SnowSQL
+        run: |
+          curl -O https://sfc-repo.snowflakecomputing.com/snowsql/bootstrap/1.2/linux_x86_64/snowsql-1.2.23-linux_x86_64.bash
+          SNOWSQL_DEST=~/bin SNOWSQL_LOGIN_SHELL=~/.profile bash snowsql-1.2.23-linux_x86_64.bash
+      - name: Create schema for branch if not exists
+        run: |
+          ~/bin/snowsql -q 'create schema if not exists ${{ github.ref_name }}' -o friendly=false
+      - name: Upload artifact to SnowSQL
+        run: |
+          ~/bin/snowsql -s ${{ github.ref_name }} -q 'put file://'$(pwd)'/app.zip @deploy overwrite=true' -o friendly=false
