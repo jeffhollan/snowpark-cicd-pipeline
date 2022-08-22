@@ -1,18 +1,17 @@
 #!/usr/bin/env python
 # coding: utf-8
 
-from snowflake.snowpark import Session, DataFrame
-from snowflake.snowpark.types import FloatType, IntegerType
-from snowflake.snowpark.functions import when, regexp_replace, col, lit, max, min, udf
+from snowflake.snowpark import Session, udf
+from snowflake.snowpark.functions import *
+from shared import get_session
 
-def notebook(session: Session) -> str:
+def notebook(session):
     articles_df = session.table('articles')
     articles_df = articles_df.select(col('author'), col('claps'), col('title'), col('reading_time'))
     df = convert_claps_to_int(articles_df)
-    df = minmax_time(df)
     output = get_each_author_most_popular_article(df)
     output.write.save_as_table('top_articles_by_author', mode='overwrite')
-    return output._show_string()
+    return output
 
 # making this a method so I can unit test the logic
 def convert_claps_to_int(input_df):
@@ -27,11 +26,3 @@ def get_each_author_most_popular_article(input_df):
     max_df = input_df.groupBy('author').agg(max('claps').alias('claps'))
     # join back in the title and reading time, and remove duplicates
     return max_df.join(input_df, ['author', 'claps']).distinct()
-
-def minmax_time(input_df: DataFrame) -> DataFrame:
-    @udf
-    def minmax_normalizer(max: int, min: int, val: int) -> float:
-        return (val - min) / (max - min)
-    maxtime = input_df.agg(max(col('reading_time'))).collect()[0][0]
-    mintime = input_df.agg(min(col('reading_time'))).collect()[0][0]
-    return input_df.select('author', 'claps', 'title', minmax_normalizer(lit(maxtime), lit(mintime), col('reading_time')).alias('reading_time'))
