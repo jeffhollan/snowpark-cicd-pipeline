@@ -10,6 +10,7 @@ def notebook(session: Session) -> str:
     articles_df = articles_df.select(col('author'), col('claps'), col('title'), col('reading_time'))
     df = convert_claps_to_int(articles_df)
     df = minmax_time(df)
+    df = minmax_claps(df)
     output = get_each_author_most_popular_article(df)
     output.write.save_as_table('top_articles_by_author', mode='overwrite')
     return output._show_string()
@@ -35,3 +36,11 @@ def minmax_time(input_df: DataFrame) -> DataFrame:
     maxtime = input_df.agg(max(col('reading_time'))).collect()[0][0]
     mintime = input_df.agg(min(col('reading_time'))).collect()[0][0]
     return input_df.select('author', 'claps', 'title', minmax_normalizer(lit(maxtime), lit(mintime), col('reading_time')).alias('reading_time'))
+
+def minmax_claps(input_df: DataFrame) -> DataFrame:
+    @udf
+    def minmax_normalizer(max: int, min: int, val: int) -> float:
+        return (val - min) / (max - min)
+    maxclaps = input_df.agg(max(col('claps'))).collect()[0][0]
+    minclaps = input_df.agg(min(col('claps'))).collect()[0][0]
+    return input_df.select('author', minmax_normalizer(lit(maxclaps), lit(minclaps), col('claps')).alias('claps'), 'title', 'reading_time')

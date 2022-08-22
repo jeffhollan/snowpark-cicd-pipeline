@@ -17,6 +17,10 @@
     {
       "name": "Reading - minmax norm",
       "value": "SELECT READING_TIME FROM {{schema}}.top_articles_by_author WHERE READING_TIME > 1 OR READING_TIME < 0"
+    },
+    {
+      "name": "Claps - minmax norm",
+      "value": "SELECT CLAPS FROM {{schema}}.top_articles_by_author WHERE CLAPS > 1 OR CLAPS < 0"
     }
   ]
 }

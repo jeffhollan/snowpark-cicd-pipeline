@@ -33,7 +33,7 @@ def test_claps_conversion(session: Session):
 
     assert (actual_df.collect() == exepcted_df.collect())
 
-def test_minmax_conversion(session: Session):
+def test_minmax_conversion_reading(session: Session):
     
 
     source_data = [
@@ -56,6 +56,35 @@ def test_minmax_conversion(session: Session):
         StructType([
             StructField("author", StringType()), 
             StructField("claps", IntegerType()), 
+            StructField("title", StringType()), 
+            StructField("reading_time", DoubleType())])
+    )
+
+    assert (actual_df.collect() == exepcted_df.collect())
+
+def test_minmax_conversion_claps(session: Session):
+    
+
+    source_data = [
+        ("Jon Doe", 1200, "My Title", 50),
+        ("Jane Doe", 200, "This title", 100),
+        ("Author X", 11400, "Title Y", 1)
+    ]
+    source_df = session.create_dataframe(
+        source_data,
+        ["author", "claps", "title", "reading_time"]
+    )
+    actual_df = process_data.minmax_claps(source_df)
+    expected_data = [
+        ("Jon Doe", (1200-200) / (11400-200), "My Title", 50),
+        ("Jane Doe", 0, "This title", 100),
+        ("Author X", 1, "Title Y", 1)
+    ]
+    exepcted_df = session.create_dataframe(
+        expected_data,
+        StructType([
+            StructField("author", StringType()), 
+            StructField("claps", DoubleType()), 
             StructField("title", StringType()), 
             StructField("reading_time", DoubleType())])
     )
