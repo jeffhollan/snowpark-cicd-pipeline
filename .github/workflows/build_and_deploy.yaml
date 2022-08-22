@@ -59,7 +59,7 @@ jobs:
       - name: Parse test plan
         id: matrix
         run: |
-          assertions=$(cat ./tests/most_popular_article.json | jq -c '.assertions' | sed 's/{{schema}}/${{ github.ref }}/g')
+          assertions=$(cat ./tests/most_popular_article.json | jq -c '.assertions' | sed 's/{{schema}}/${{ github.ref_name }}/g')
           echo "::set-output name=assertions::$assertions"
 
   deploy:
