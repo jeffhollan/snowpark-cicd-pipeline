@@ -11,4 +11,4 @@ jobs:
           SNOWSQL_DEST=~/bin SNOWSQL_LOGIN_SHELL=~/.profile bash snowsql-1.2.23-linux_x86_64.bash
       - name: Upload artifact to SnowSQL
         run: |
-          ~/bin/snowsql -q 'drop schema ${{ github.event.ref_name }}' -o friendly=false -o exit_on_error=true
+          ~/bin/snowsql -q 'drop schema ${{ github.event.ref }}' -o friendly=false -o exit_on_error=true
