@@ -112,4 +112,10 @@ jobs:
           SNOWSQL_DEST=~/bin SNOWSQL_LOGIN_SHELL=~/.profile bash snowsql-1.2.23-linux_x86_64.bash
       - name: Run test
         run: |
-          ~/bin/snowsql -s ${{ github.ref_name }} -q $'${{ matrix.value }}' -o friendly=false -o exit_on_error=true
+          rowCount=$(~/bin/snowsql -s ${{ github.ref_name }} -q $'${{ matrix.value }}' -o friendly=false -o exit_on_error=true -o output_format=json -o timing=false | jq '. | length')
+          if [[ $rowCount -ne 0 ]]; then
+            echo "Test failed! $rowCount rows returned" 1>&2
+            exit 1
+          else
+            echo "Test Passed! $rowCount rows returned"
+          fi
