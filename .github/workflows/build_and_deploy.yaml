@@ -72,4 +72,4 @@ jobs:
           ~/bin/snowsql -q 'create schema if not exists ${{ github.ref_name }}' -o friendly=false
       - name: Upload artifact to SnowSQL
         run: |
-          ~/bin/snowsql -s ${{ github.ref_name }} -q 'put file://'$(pwd)'/app.zip @deploy overwrite=true' -o friendly=false
+          ~/bin/snowsql -s ${{ github.ref_name }} -q 'put file://'$(pwd)'/app.zip @deploy overwrite=true' -o friendly=false,exit_on_error=true
