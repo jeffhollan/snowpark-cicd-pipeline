@@ -1,5 +1,14 @@
 name: Branch Deleted
 on: delete
+
+env:
+  SNOWSQL_PWD: ${{ secrets.SNOWFLAKE_PASSWORD }}
+  SNOWSQL_ACCOUNT: ${{ secrets.SNOWFLAKE_ACCOUNT }}
+  SNOWSQL_USER: ${{ secrets.SNOWFLAKE_USERNAME }}
+  SNOWSQL_DATABASE: ${{ secrets.SNOWFLAKE_DATABASE }}
+  SNOWSQL_ROLE: ${{ secrets.SNOWFLAKE_ROLE }}
+  SNOWSQL_WAREHOUSE: ${{ secrets.SNOWFLAKE_WAREHOUSE }}
+
 jobs:
   delete:
     if: github.event.ref_type == 'branch'
