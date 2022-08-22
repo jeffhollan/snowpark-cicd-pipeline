@@ -14,13 +14,13 @@ def session() -> Session:
         session = Session.builder.configs(snowpark_config).create()
     else:
         connection_parameters = {
-            "account": os.environ["snowflake_account"],
-            "user": os.environ["snowflake_user"],
-            "password": os.environ["snowflake_password"],
-            "role": os.environ["snowflake_user_role"],
-            "warehouse": os.environ["snowflake_warehouse"],
-            "database": os.environ["snowflake_database"],
-            "schema": os.environ["snowflake_schema"]
+            "account": os.environ["SNOWSQL_ACCOUNT"],
+            "user": os.environ["SNOWSQL_USER"],
+            "password": os.environ["SNOWSQL_PWD"],
+            "role": os.environ["SNOWSQL_ROLE"],
+            "warehouse": os.environ["SNOWSQL_WAREHOUSE"],
+            "database": os.environ["SNOWSQL_DATABASE"],
+            "schema": os.environ["SNOWSQL_SCHEMA"]
         }
         session = Session.builder.configs(connection_parameters).create()
     return session
