@@ -73,4 +73,7 @@ jobs:
       - name: Upload artifact to SnowSQL
         run: |
           ~/bin/snowsql -s ${{ github.ref_name }} -q 'create stage if not exists deploy' -o friendly=false -o exit_on_error=true
-          ~/bin/snowsql -s ${{ github.ref_name }} -q 'put file://'$(pwd)'/app.zip @deploy overwrite=true' -o friendly=false -o exit_on_error=true
+          ~/bin/snowsql -s ${{ github.ref_name }} -q 'put file://'$(pwd)'/app.zip @deploy overwrite=true auto_compress=false' -o friendly=false -o exit_on_error=true
+      - name: Create resources and seed database
+        run: |
+          ~/bin/snowsql -s ${{ github.ref_name }} -f ./setup/00_seed_new_schema.sql -o friendly=false -o exit_on_error=true
