@@ -28,6 +28,8 @@ env:
 jobs:
   build:
     runs-on: ubuntu-latest
+    outputs:
+      matrix: ${{ steps.matrix.outputs.assertions }}
     steps:
       - uses: actions/checkout@v3
       - uses: actions/setup-python@v4
@@ -54,6 +56,11 @@ jobs:
           name: app
           path: app.zip
           retention-days: 7
+      - name: Parse test plan
+        id: matrix
+        run: |
+          assertions=$(cat ./tests/most_popular_article.json | jq -c '.assertions')
+          echo "::set-output name=assertions::$assertions"
 
   deploy:
     needs: build
@@ -77,3 +84,19 @@ jobs:
       - name: Create resources and seed database
         run: |
           ~/bin/snowsql -s ${{ github.ref_name }} -f ./setup/00_seed_new_schema.sql -o friendly=false -o exit_on_error=true
+
+  e2etest:
+    needs: [deploy, build]
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        value: ${{fromJson(needs.build.outputs.matrix)}}
+    steps:
+      - uses: actions/checkout@v3
+      - name: Install SnowSQL
+        run: |
+          curl -O https://sfc-repo.snowflakecomputing.com/snowsql/bootstrap/1.2/linux_x86_64/snowsql-1.2.23-linux_x86_64.bash
+          SNOWSQL_DEST=~/bin SNOWSQL_LOGIN_SHELL=~/.profile bash snowsql-1.2.23-linux_x86_64.bash
+      - name: Run test
+        run: |
+          ~/bin/snowsql -s ${{ github.ref_name }} -q '{{ matrix.value }}' -o friendly=false -o exit_on_error=true
