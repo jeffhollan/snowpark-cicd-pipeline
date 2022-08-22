@@ -29,7 +29,9 @@ def get_each_author_most_popular_article(input_df):
     return max_df.join(input_df, ['author', 'claps']).distinct()
 
 def minmax_time(input_df: DataFrame) -> DataFrame:
+    @udf
+    def minmax_normalizer(max: int, min: int, val: int) -> float:
+        return (val - min) / (max - min)
     maxtime = input_df.agg(max(col('reading_time'))).collect()[0][0]
     mintime = input_df.agg(min(col('reading_time'))).collect()[0][0]
-    minmax_udf = udf(lambda max,min,val: (val-min)/(max-min), return_type=FloatType(), input_types=[IntegerType(), IntegerType(), IntegerType()])
-    return input_df.select('author', 'claps', 'title', minmax_udf(lit(maxtime), lit(mintime), col('reading_time')).alias('reading_time'))
+    return input_df.select('author', 'claps', 'title', minmax_normalizer(lit(maxtime), lit(mintime), col('reading_time')).alias('reading_time'))
