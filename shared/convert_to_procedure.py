@@ -17,7 +17,7 @@ def convert_to_procedure(input_file, output_file):
     app.initialize(argv=[])
     app.export_format = 'python'
     app.notebooks = [input_file]
-    app.output_base = output_file
+    app.output_base = output_file + '_converted'
     app.start()
 
 

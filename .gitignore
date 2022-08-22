@@ -4,3 +4,5 @@ __pycache__
 .pytest_cache
 app.zip
 .packages
+.ipynb_checkpoints
+*_converted.py

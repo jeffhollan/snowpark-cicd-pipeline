@@ -1,8 +1,8 @@
 from snowflake.snowpark import Session
 from shared.snowflake_connection import SnowflakeConnection
+import process_data
 
 
 def invoke(session: Session) -> str:
     SnowflakeConnection().connection = session
-    import process_data
-    return process_data.output._show_string()
+    return process_data.notebook(session)._show_string()
