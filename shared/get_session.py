@@ -11,7 +11,7 @@ def session() -> Session:
     # if running locally with a config file
     elif os.path.exists('../config.py') or os.path.exists('config.py'):
         from config import snowpark_config
-        session = Session.builder.configs(snowpark_config).create()
+        SnowflakeConnection().connection = Session.builder.configs(snowpark_config).create()
     else:
         connection_parameters = {
             "account": os.environ["SNOWSQL_ACCOUNT"],
@@ -22,5 +22,5 @@ def session() -> Session:
             "database": os.environ["SNOWSQL_DATABASE"],
             "schema": os.environ["SNOWSQL_SCHEMA"]
         }
-        session = Session.builder.configs(connection_parameters).create()
-    return session
+        SnowflakeConnection().connection = Session.builder.configs(connection_parameters).create()
+    return SnowflakeConnection().connection
