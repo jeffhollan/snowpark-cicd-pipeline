@@ -2,7 +2,7 @@
   "title": "Most Popular Article integration tests",
   "storedProcedure": "most_popular_article()",
   "assertions": [
-    "SELECT * FROM {{schema}}.top_articles_by_author WHERE Author like \"Jeff Hollan\"",
+    "SELECT * FROM {{schema}}.top_articles_by_author WHERE Author like \\'Jeff Hollan\\'",
     "SELECT AUTHOR FROM {{schema}}.top_articles_by_author GROUP BY AUTHOR HAVING COUNT(*) > 1",
     "SELECT AUTHOR FROM {{schema}}.top_articles_by_author WHERE AUTHOR is null"
   ]
