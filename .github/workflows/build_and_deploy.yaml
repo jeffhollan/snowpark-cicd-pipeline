@@ -99,4 +99,4 @@ jobs:
           SNOWSQL_DEST=~/bin SNOWSQL_LOGIN_SHELL=~/.profile bash snowsql-1.2.23-linux_x86_64.bash
       - name: Run test
         run: |
-          ~/bin/snowsql -s ${{ github.ref_name }} -q '{{ matrix.value }}' -o friendly=false -o exit_on_error=true
+          ~/bin/snowsql -s ${{ github.ref_name }} -q '${{ matrix.value }}' -o friendly=false -o exit_on_error=true
