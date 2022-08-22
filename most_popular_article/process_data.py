@@ -3,16 +3,15 @@
 
 from snowflake.snowpark import Session, udf, DataFrame
 from snowflake.snowpark.functions import *
-from shared import get_session
 
-def notebook(session):
+def notebook(session: Session) -> str:
     articles_df = session.table('articles')
     articles_df = articles_df.select(col('author'), col('claps'), col('title'), col('reading_time'))
     df = convert_claps_to_int(articles_df)
     df = minmax_time(df)
     output = get_each_author_most_popular_article(df)
     output.write.save_as_table('top_articles_by_author', mode='overwrite')
-    return output
+    return output._show_string()
 
 # making this a method so I can unit test the logic
 def convert_claps_to_int(input_df):
