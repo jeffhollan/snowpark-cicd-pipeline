@@ -4,6 +4,7 @@
   "assertions": [
     "SELECT * FROM {{schema}}.top_articles_by_author WHERE Author like \\'Jeff Hollan\\'",
     "SELECT AUTHOR FROM {{schema}}.top_articles_by_author GROUP BY AUTHOR HAVING COUNT(*) > 1",
-    "SELECT AUTHOR FROM {{schema}}.top_articles_by_author WHERE AUTHOR is null"
+    "SELECT AUTHOR FROM {{schema}}.top_articles_by_author WHERE AUTHOR is null",
+    "SELECT READING_TIME FROM {{schema}}.top_articles_by_author WHERE READING_TIME > 1 OR READING_TIME < 0"
   ]
 }

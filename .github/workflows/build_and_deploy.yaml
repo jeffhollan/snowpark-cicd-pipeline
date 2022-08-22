@@ -10,8 +10,6 @@ on:
       - "*"
     tags:
       - "v*"
-  pull_request:
-    branches: [main]
 
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
@@ -21,7 +19,7 @@ env:
   SNOWSQL_ACCOUNT: ${{ secrets.SNOWFLAKE_ACCOUNT }}
   SNOWSQL_USER: ${{ secrets.SNOWFLAKE_USERNAME }}
   SNOWSQL_DATABASE: ${{ secrets.SNOWFLAKE_DATABASE }}
-  SNOWSQL_SCHEMA: ${{ secrets.SNOWFLAKE_SCHEMA }}
+  SNOWSQL_SCHEMA: ${{ github.ref_name }}
   SNOWSQL_ROLE: ${{ secrets.SNOWFLAKE_ROLE }}
   SNOWSQL_WAREHOUSE: ${{ secrets.SNOWFLAKE_WAREHOUSE }}
 
@@ -32,12 +30,19 @@ jobs:
       matrix: ${{ steps.matrix.outputs.assertions }}
     steps:
       - uses: actions/checkout@v3
+      - name: Install SnowSQL
+        run: |
+          curl -O https://sfc-repo.snowflakecomputing.com/snowsql/bootstrap/1.2/linux_x86_64/snowsql-1.2.23-linux_x86_64.bash
+          SNOWSQL_DEST=~/bin SNOWSQL_LOGIN_SHELL=~/.profile bash snowsql-1.2.23-linux_x86_64.bash
       - uses: actions/setup-python@v4
         with:
           python-version: "3.8"
       - name: Install python packages
         run: pip install -r requirements.txt
-      - name: Running unit tests
+      - name: Create schema for branch if not exists
+        run: |
+          ~/bin/snowsql -q 'create schema if not exists ${{ github.ref_name }}' -o friendly=false
+      - name: Run unit tests
         run: python -m pytest
       - name: Installing manually managed packages for deployment
         run: |
@@ -74,9 +79,6 @@ jobs:
         run: |
           curl -O https://sfc-repo.snowflakecomputing.com/snowsql/bootstrap/1.2/linux_x86_64/snowsql-1.2.23-linux_x86_64.bash
           SNOWSQL_DEST=~/bin SNOWSQL_LOGIN_SHELL=~/.profile bash snowsql-1.2.23-linux_x86_64.bash
-      - name: Create schema for branch if not exists
-        run: |
-          ~/bin/snowsql -q 'create schema if not exists ${{ github.ref_name }}' -o friendly=false
       - name: Upload artifact to SnowSQL
         run: |
           ~/bin/snowsql -s ${{ github.ref_name }} -q 'create stage if not exists deploy' -o friendly=false -o exit_on_error=true
