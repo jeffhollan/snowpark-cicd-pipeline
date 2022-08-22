@@ -59,7 +59,7 @@ jobs:
       - name: Parse test plan
         id: matrix
         run: |
-          assertions=$(cat ./tests/most_popular_article.json | jq -c '.assertions')
+          assertions=$(cat ./tests/most_popular_article.json | jq -c '.assertions' | sed 's/{{schema}}/${{ github.ref }}/g')
           echo "::set-output name=assertions::$assertions"
 
   deploy:
@@ -85,8 +85,19 @@ jobs:
         run: |
           ~/bin/snowsql -s ${{ github.ref_name }} -f ./setup/00_seed_new_schema.sql -o friendly=false -o exit_on_error=true
 
-  e2etest:
+  run_procedures:
     needs: [deploy, build]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Install SnowSQL
+        run: |
+          curl -O https://sfc-repo.snowflakecomputing.com/snowsql/bootstrap/1.2/linux_x86_64/snowsql-1.2.23-linux_x86_64.bash
+          SNOWSQL_DEST=~/bin SNOWSQL_LOGIN_SHELL=~/.profile bash snowsql-1.2.23-linux_x86_64.bash
+      - name: Create resources and seed database
+        run: |
+          ~/bin/snowsql -s ${{ github.ref_name }} -f ./setup/01_run_procedures.sql -o friendly=false -o exit_on_error=true
+  e2etest:
+    needs: [deploy, build, run_procedures]
     runs-on: ubuntu-latest
     strategy:
       matrix:

@@ -1,0 +1,1 @@
+call most_popular_article();
