@@ -1,8 +1,9 @@
 #!/usr/bin/env python
 # coding: utf-8
 
-from snowflake.snowpark import Session, udf, DataFrame
-from snowflake.snowpark.functions import *
+from snowflake.snowpark import Session, DataFrame
+from snowflake.snowpark.types import FloatType, IntegerType
+from snowflake.snowpark.functions import when, regexp_replace, col, lit, max, min, udf
 
 def notebook(session: Session) -> str:
     articles_df = session.table('articles')
@@ -27,11 +28,8 @@ def get_each_author_most_popular_article(input_df):
     # join back in the title and reading time, and remove duplicates
     return max_df.join(input_df, ['author', 'claps']).distinct()
 
-@udf
-def minmax(maxtime: int, mintime: int, value: int) -> float:
-    return (value - mintime) / (maxtime - mintime)
-
 def minmax_time(input_df: DataFrame) -> DataFrame:
     maxtime = input_df.agg(max(col('reading_time'))).collect()[0][0]
     mintime = input_df.agg(min(col('reading_time'))).collect()[0][0]
-    return input_df.select('author', 'claps', 'title', minmax(lit(maxtime), lit(mintime), col('reading_time')).alias('reading_time'))
+    minmax_udf = udf(lambda max,min,val: (val-min)/(max-min), return_type=FloatType(), input_types=[IntegerType(), IntegerType(), IntegerType()])
+    return input_df.select('author', 'claps', 'title', minmax_udf(lit(maxtime), lit(mintime), col('reading_time')).alias('reading_time'))
