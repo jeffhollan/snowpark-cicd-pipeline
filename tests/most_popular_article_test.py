@@ -48,8 +48,8 @@ def test_minmax_conversion(session: Session):
     actual_df = process_data.minmax_time(source_df)
     expected_data = [
         ("Jon Doe", 1200, "My Title", (50 - 1) / (100 - 1)),
-        ("Jane Doe", 200, "This title", 1),
-        ("Author X", 11400, "Title Y", 0)
+        ("Jane Doe", 200, "This title", 1.0),
+        ("Author X", 11400, "Title Y", 0.0)
     ]
     exepcted_df = session.create_dataframe(
         expected_data,
